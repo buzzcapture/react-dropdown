@@ -9,13 +9,13 @@ class Dropdown extends React.Component {
     super(props);
 
     // Seems to be important if using ES6 classes.
-    this.state = this.getInitialSate();
+    this.state = this.getInitialSate(props);
 
     this.mounted = true;
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
   }
 
-  getInitialSate() {
+  getInitialSate(props) {
     return {
       selected: props.value || {
         label: props.placeholder || "Select...",
