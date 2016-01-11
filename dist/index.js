@@ -21,7 +21,7 @@ var Dropdown = (function (_React$Component) {
     _get(Object.getPrototypeOf(Dropdown.prototype), "constructor", this).call(this, props);
 
     // Seems to be important if using ES6 classes.
-    this.state = this.getInitialSate();
+    this.state = this.getInitialSate(props);
 
     this.mounted = true;
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
@@ -31,7 +31,7 @@ var Dropdown = (function (_React$Component) {
 
   _createClass(Dropdown, {
     getInitialSate: {
-      value: function getInitialSate() {
+      value: function getInitialSate(props) {
         return {
           selected: props.value || {
             label: props.placeholder || "Select...",
