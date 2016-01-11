@@ -1,21 +1,26 @@
-'use strict';
+"use strict";
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames';
+import React from "react";
+import classNames from "classnames";
 
 class Dropdown extends React.Component {
 
-  displayName: 'Dropdown'
-
   constructor(props) {
     super(props);
-    this.state = {
-      selected: props.value || { label: props.placeholder || 'Select...', value: '' },
-      isOpen: false
-    }
+
     this.mounted = true;
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
+  }
+
+  getInitialSate() {
+    return {
+      selected: props.value || {
+        label: props.placeholder || "Select...",
+        value: ""
+      },
+
+      isOpen: false
+    };
   }
 
   componentWillReceiveProps(newProps) {
@@ -25,30 +30,31 @@ class Dropdown extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener('click', this.handleDocumentClick, false);
+    document.addEventListener("click", this.handleDocumentClick, false);
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    document.removeEventListener('click', this.handleDocumentClick, false);
+    document.removeEventListener("click", this.handleDocumentClick, false);
   }
 
-  handleMouseDown(event) {
+  handleMouseDown(evt) {
+    if (evt.button === 0 && evt.type !== "mousedown") {
+      evt.stopPropagation();
+      evt.preventDefault();
 
-    if (event.type == 'mousedown' && event.button !== 0) return;
-    event.stopPropagation();
-    event.preventDefault();
-
-    this.setState({
-      isOpen: !this.state.isOpen
-    });
+      this.setState({
+        isOpen: !this.state.isOpen
+      });
+    }
   }
 
   setValue(option) {
     let newState = {
       selected: option,
       isOpen: false
-    }
+    };
+
     this.fireChangeEvent(newState);
     this.setState(newState);
   }
@@ -61,56 +67,91 @@ class Dropdown extends React.Component {
 
   renderOption (option) {
     let optionClass = classNames({
-      'Dropdown-option': true,
-      'is-selected': option == this.state.selected
+      "dropdown-option": true,
+      "is-selected": option == this.state.selected
     });
 
-    return <div key={option.value} className={optionClass} onMouseDown={this.setValue.bind(this, option)} onClick={this.setValue.bind(this, option)}>{option.label}</div>
+    return (
+      <div key={option.value}
+           className={optionClass}
+           onMouseDown={this.setValue.bind(this, option)}
+           onClick={this.setValue.bind(this, option)}>
+        {option.label}
+      </div>
+    );
   }
 
   buildMenu() {
-    let ops = this.props.options.map((option) => {
-      if (option.type == 'group') {
-        let groupTitle = (<div className='title'>{option.name}</div>);
-        let _options = option.items.map((item) => this.renderOption(item));
+    let opts;
 
-        return (
-          <div className='group' key={option.name}>
+    opts = this.props.options.map((option) => {
+      let groupTitle, _options, rendered;
+
+      if (option.type == "group") {
+        groupTitle = (
+          <div className="title">
+            {option.name}
+          </div>
+        );
+
+        _options = option.items.map((item) => this.renderOption(item));
+
+        rendered = (
+          <div className="group"
+               key={option.name}>
             {groupTitle}
             {_options}
           </div>
         );
       } else {
-        return this.renderOption(option);
+        rendered = this.renderOption(option);
       }
-    })
 
-    return ops.length ? ops : <div className='Dropdown-noresults'>No options found</div>;
+      return rendered;
+    });
+
+    return opts.length ? opts : (
+      <div className="dropdown-noresults">No options found.</div>
+    );
   }
 
-  handleDocumentClick(event) {
-    if(this.mounted) {
-      if (!ReactDOM.findDOMNode(this).contains(event.target)) {
-        this.setState({isOpen:false});
-      }
+  handleDocumentClick(evt) {
+    if (this.mounted && !React.findDOMNode(this).contains(evt.target)) {
+      this.setState({
+        isOpen:false
+      });
     }
   }
 
   render() {
     const { controlClassName, menuClassName } = this.props;
-    let value = (<div className='placeholder'>{this.state.selected.label}</div>);
-    let menu = this.state.isOpen ? <div className={menuClassName}>{this.buildMenu()}</div> : null;
 
-    let dropdownClass = classNames({
-      'Dropdown': true,
-      'is-open': this.state.isOpen
+    let value, menu, dropdownClass;
+
+    value = (
+      <div className="placeholder">
+        {this.state.selected.label}
+      </div>
+    );
+
+    menu = this.state.isOpen ? (
+      <div className={menuClassName}>
+        {this.buildMenu()}
+      </div>
+    ) : null;
+
+    dropdownClass = classNames({
+      "dropdown": true,
+      "is-open": this.state.isOpen
     });
 
     return (
       <div className={dropdownClass}>
-        <div className={controlClassName} onMouseDown={this.handleMouseDown.bind(this)} onTouchEnd={this.handleMouseDown.bind(this)}>
+        <div className={controlClassName}
+             onMouseDown={this.handleMouseDown.bind(this)}
+             onTouchEnd={this.handleMouseDown.bind(this)}>
           {value}
-          <span className='Dropdown-arrow' />
+          <span className="dropdown-arrow" />
         </div>
         {menu}
       </div>
@@ -118,5 +159,10 @@ class Dropdown extends React.Component {
   }
 
 }
-Dropdown.defaultProps = { controlClassName: 'Dropdown-control', menuClassName: 'Dropdown-menu'};
+
+Dropdown.defaultProps = {
+  controlClassName: "dropdown-control",
+  menuClassName: "dropdown-menu"
+};
+
 export default Dropdown;
