@@ -10,6 +10,10 @@ var _inherits = function (subClass, superClass) { if (typeof superClass !== "fun
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _ = _interopRequire(require("lodash"));
+
 var React = _interopRequire(require("react"));
 
 var classNames = _interopRequire(require("classnames"));
@@ -20,10 +24,9 @@ var Dropdown = (function (_React$Component) {
 
     _get(Object.getPrototypeOf(Dropdown.prototype), "constructor", this).call(this, props);
 
-    // Seems to be important if using ES6 classes.
-    this.state = this.getInitialSate(props);
-
+    this.state = this.getInitialSate();
     this.mounted = true;
+
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
   }
 
@@ -31,22 +34,10 @@ var Dropdown = (function (_React$Component) {
 
   _createClass(Dropdown, {
     getInitialSate: {
-      value: function getInitialSate(props) {
+      value: function getInitialSate() {
         return {
-          selected: props.value || {
-            label: props.placeholder || "Select...",
-            value: ""
-          },
-
           isOpen: false
         };
-      }
-    },
-    componentWillReceiveProps: {
-      value: function componentWillReceiveProps(newProps) {
-        if (newProps.value && newProps.value !== this.state.selected) {
-          this.setState({ selected: newProps.value });
-        }
       }
     },
     componentDidMount: {
@@ -62,7 +53,7 @@ var Dropdown = (function (_React$Component) {
     },
     handleMouseDown: {
       value: function handleMouseDown(evt) {
-        if (evt.button === 0 && evt.type !== "mousedown") {
+        if (evt.button === 0 && evt.type === "mousedown") {
           evt.stopPropagation();
           evt.preventDefault();
 
@@ -74,27 +65,26 @@ var Dropdown = (function (_React$Component) {
     },
     setValue: {
       value: function setValue(option) {
-        var newState = {
-          selected: option,
-          isOpen: false
-        };
+        this.refs.input.value = option.value;
 
-        this.fireChangeEvent(newState);
-        this.setState(newState);
-      }
-    },
-    fireChangeEvent: {
-      value: function fireChangeEvent(newState) {
-        if (newState.selected !== this.state.selected && this.props.onChange) {
-          this.props.onChange(newState.selected);
+        // Update linked component.
+        if (this.props.valueLink) {
+          this.props.valueLink.requestChange(option.value);
+        } else if (this.props.onChange) {
+          // Call onChange with no Event, but pass the selection.
+          this.props.onChange(null, option);
         }
+
+        this.setState({
+          isOpen: false
+        });
       }
     },
     renderOption: {
       value: function renderOption(option) {
         var optionClass = classNames({
-          "dropdown-option": true,
-          "is-selected": option == this.state.selected
+          "select-dropdown-option": true,
+          "is-selected": option.value == this.getSelectedOption().value
         });
 
         return React.createElement(
@@ -118,7 +108,7 @@ var Dropdown = (function (_React$Component) {
               _options = undefined,
               rendered = undefined;
 
-          if (option.type == "group") {
+          if (option.type === "group") {
             groupTitle = React.createElement(
               "div",
               { className: "title" },
@@ -145,7 +135,7 @@ var Dropdown = (function (_React$Component) {
 
         return opts.length ? opts : React.createElement(
           "div",
-          { className: "dropdown-noresults" },
+          { className: "select-dropdown-noresults" },
           "No options found."
         );
       }
@@ -159,20 +149,39 @@ var Dropdown = (function (_React$Component) {
         }
       }
     },
+    getSelectedOption: {
+      value: function getSelectedOption() {
+        var val = undefined,
+            result = undefined;
+
+        val = this.props.value || this.props.valueLink.value;
+        result = _.filter(this.props.options, function (option) {
+          return option.value === val;
+        });
+
+        return _.first(result) || {
+          label: this.props.placeholder
+        };
+      }
+    },
     render: {
       value: function render() {
         var _props = this.props;
         var controlClassName = _props.controlClassName;
         var menuClassName = _props.menuClassName;
 
-        var value = undefined,
+        var input = undefined,
+            value = undefined,
             menu = undefined,
             dropdownClass = undefined;
+
+        input = React.createElement("input", _extends({ type: "hidden", ref: "input"
+        }, _.omit(this.props, "options", "onChange", "valueLink")));
 
         value = React.createElement(
           "div",
           { className: "placeholder" },
-          this.state.selected.label
+          this.getSelectedOption().label
         );
 
         menu = this.state.isOpen ? React.createElement(
@@ -182,20 +191,21 @@ var Dropdown = (function (_React$Component) {
         ) : null;
 
         dropdownClass = classNames({
-          dropdown: true,
+          "select-dropdown": true,
           "is-open": this.state.isOpen
         });
 
         return React.createElement(
           "div",
           { className: dropdownClass },
+          input,
           React.createElement(
             "div",
             { className: controlClassName,
               onMouseDown: this.handleMouseDown.bind(this),
               onTouchEnd: this.handleMouseDown.bind(this) },
             value,
-            React.createElement("span", { className: "dropdown-arrow" })
+            React.createElement("span", { className: "select-dropdown-arrow" })
           ),
           menu
         );
@@ -207,8 +217,8 @@ var Dropdown = (function (_React$Component) {
 })(React.Component);
 
 Dropdown.defaultProps = {
-  controlClassName: "dropdown-control",
-  menuClassName: "dropdown-menu"
+  controlClassName: "select-dropdown-control",
+  menuClassName: "select-dropdown-menu"
 };
 
 module.exports = Dropdown;

@@ -1,5 +1,6 @@
 "use strict";
 
+import _ from "lodash";
 import React from "react";
 import classNames from "classnames";
 
@@ -8,28 +9,16 @@ class Dropdown extends React.Component {
   constructor(props) {
     super(props);
 
-    // Seems to be important if using ES6 classes.
-    this.state = this.getInitialSate(props);
-
+    this.state = this.getInitialSate();
     this.mounted = true;
+
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
   }
 
-  getInitialSate(props) {
+  getInitialSate() {
     return {
-      selected: props.value || {
-        label: props.placeholder || "Select...",
-        value: ""
-      },
-
       isOpen: false
     };
-  }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.value && newProps.value !== this.state.selected) {
-      this.setState({selected: newProps.value});
-    }
   }
 
   componentDidMount() {
@@ -42,7 +31,7 @@ class Dropdown extends React.Component {
   }
 
   handleMouseDown(evt) {
-    if (evt.button === 0 && evt.type !== "mousedown") {
+    if (evt.button === 0 && evt.type === "mousedown") {
       evt.stopPropagation();
       evt.preventDefault();
 
@@ -53,25 +42,25 @@ class Dropdown extends React.Component {
   }
 
   setValue(option) {
-    let newState = {
-      selected: option,
-      isOpen: false
-    };
+    this.refs.input.value = option.value;
 
-    this.fireChangeEvent(newState);
-    this.setState(newState);
-  }
-
-  fireChangeEvent(newState) {
-    if (newState.selected !== this.state.selected && this.props.onChange) {
-      this.props.onChange(newState.selected);
+    // Update linked component.
+    if (this.props.valueLink) {
+      this.props.valueLink.requestChange(option.value);
+    } else if (this.props.onChange) {
+      // Call onChange with no Event, but pass the selection.
+      this.props.onChange(null, option);
     }
+
+    this.setState({
+      isOpen: false
+    });
   }
 
   renderOption (option) {
     let optionClass = classNames({
-      "dropdown-option": true,
-      "is-selected": option == this.state.selected
+      "select-dropdown-option": true,
+      "is-selected": option.value == this.getSelectedOption().value
     });
 
     return (
@@ -90,7 +79,7 @@ class Dropdown extends React.Component {
     opts = this.props.options.map((option) => {
       let groupTitle, _options, rendered;
 
-      if (option.type == "group") {
+      if (option.type === "group") {
         groupTitle = (
           <div className="title">
             {option.name}
@@ -114,26 +103,41 @@ class Dropdown extends React.Component {
     });
 
     return opts.length ? opts : (
-      <div className="dropdown-noresults">No options found.</div>
+      <div className="select-dropdown-noresults">No options found.</div>
     );
   }
 
   handleDocumentClick(evt) {
     if (this.mounted && !React.findDOMNode(this).contains(evt.target)) {
       this.setState({
-        isOpen:false
+        isOpen: false
       });
     }
   }
 
+  getSelectedOption() {
+    let val, result;
+
+    val = this.props.value || this.props.valueLink.value;
+    result = _.filter(this.props.options, option => option.value === val);
+
+    return _.first(result) || {
+      label: this.props.placeholder
+    };
+  }
+
   render() {
     const { controlClassName, menuClassName } = this.props;
+    let input, value, menu, dropdownClass;
 
-    let value, menu, dropdownClass;
+    input = (
+      <input type="hidden" ref="input"
+        {...(_.omit(this.props, "options", "onChange", "valueLink"))}/>
+    );
 
     value = (
       <div className="placeholder">
-        {this.state.selected.label}
+        {this.getSelectedOption().label}
       </div>
     );
 
@@ -144,17 +148,18 @@ class Dropdown extends React.Component {
     ) : null;
 
     dropdownClass = classNames({
-      "dropdown": true,
+      "select-dropdown": true,
       "is-open": this.state.isOpen
     });
 
     return (
       <div className={dropdownClass}>
+        {input}
         <div className={controlClassName}
              onMouseDown={this.handleMouseDown.bind(this)}
              onTouchEnd={this.handleMouseDown.bind(this)}>
           {value}
-          <span className="dropdown-arrow" />
+          <span className="select-dropdown-arrow" />
         </div>
         {menu}
       </div>
@@ -164,8 +169,8 @@ class Dropdown extends React.Component {
 }
 
 Dropdown.defaultProps = {
-  controlClassName: "dropdown-control",
-  menuClassName: "dropdown-menu"
+  controlClassName: "select-dropdown-control",
+  menuClassName: "select-dropdown-menu"
 };
 
 export default Dropdown;
