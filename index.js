@@ -8,6 +8,9 @@ class Dropdown extends React.Component {
   constructor(props) {
     super(props);
 
+    // Seems to be important if using ES6 classes.
+    this.state = this.getInitialSate();
+
     this.mounted = true;
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
   }

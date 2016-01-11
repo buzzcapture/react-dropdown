@@ -1,8 +1,8 @@
-$background-color = #f2f9fc;
-$border-color = #ccc;
-$border-light-color = #999;
-$dropdown-arrow-color = #999;
-$text-color = #333;
+$background-color: #f2f9fc;
+$border-color: #ccc;
+$border-light-color: #999;
+$dropdown-arrow-color: #999;
+$text-color: #333;
 
 .dropdown {
   position: relative;
@@ -69,7 +69,7 @@ $text-color = #333;
 
 .dropdown-option {
   box-sizing: border-box;
-  color: lighten($text-color, 20%)
+  color: lighten($text-color, 20%);
   cursor: pointer;
   display: block;
   padding: 8px 10px;
