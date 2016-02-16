@@ -84,7 +84,8 @@ var Dropdown = (function (_React$Component) {
       value: function renderOption(option) {
         var optionClass = classNames({
           "select-dropdown-option": true,
-          "is-selected": option.value == this.getSelectedOption().value
+          "is-selected": option.value == this.getSelectedOption().value,
+          "is-empty": option.value === null
         });
 
         return React.createElement(
@@ -101,9 +102,19 @@ var Dropdown = (function (_React$Component) {
       value: function buildMenu() {
         var _this = this;
 
-        var opts = undefined;
+        var data = undefined,
+            opts = undefined;
 
-        opts = this.props.options.map(function (option) {
+        data = [].concat(this.props.options);
+
+        if (this.props.allowEmpty) {
+          data.unshift({
+            value: null,
+            label: ""
+          });
+        }
+
+        opts = data.map(function (option) {
           var groupTitle = undefined,
               _options = undefined,
               rendered = undefined;
@@ -218,7 +229,8 @@ var Dropdown = (function (_React$Component) {
 
 Dropdown.defaultProps = {
   controlClassName: "select-dropdown-control",
-  menuClassName: "select-dropdown-menu"
+  menuClassName: "select-dropdown-menu",
+  allowEmpty: true
 };
 
 module.exports = Dropdown;

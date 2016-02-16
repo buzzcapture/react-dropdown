@@ -60,7 +60,8 @@ class Dropdown extends React.Component {
   renderOption (option) {
     let optionClass = classNames({
       "select-dropdown-option": true,
-      "is-selected": option.value == this.getSelectedOption().value
+      "is-selected": option.value == this.getSelectedOption().value,
+      "is-empty": option.value === null
     });
 
     return (
@@ -74,9 +75,18 @@ class Dropdown extends React.Component {
   }
 
   buildMenu() {
-    let opts;
+    let data, opts;
 
-    opts = this.props.options.map((option) => {
+    data = [].concat(this.props.options);
+
+    if (this.props.allowEmpty) {
+      data.unshift({
+        value: null,
+        label: ""
+      });
+    }
+
+    opts = data.map((option) => {
       let groupTitle, _options, rendered;
 
       if (option.type === "group") {
@@ -170,7 +180,8 @@ class Dropdown extends React.Component {
 
 Dropdown.defaultProps = {
   controlClassName: "select-dropdown-control",
-  menuClassName: "select-dropdown-menu"
+  menuClassName: "select-dropdown-menu",
+  allowEmpty: true
 };
 
 export default Dropdown;
