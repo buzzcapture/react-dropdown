@@ -58,11 +58,16 @@ class Dropdown extends React.Component {
   }
 
   renderOption (option) {
-    let optionClass = classNames({
+    let classNameMap, optionClass;
+
+    classNameMap = {
       "select-dropdown-option": true,
       "is-selected": option.value == this.getSelectedOption().value,
       "is-empty": option.value === null
-    });
+    };
+
+    classNameMap[option.value] = true;
+    optionClass = classNames(classNameMap);
 
     return (
       <div key={option.value}
@@ -128,7 +133,7 @@ class Dropdown extends React.Component {
   getSelectedOption() {
     let val, result;
 
-    val = this.props.value || this.props.valueLink.value;
+    val = this.props.value || this.props.valueLink.value || _.first(this.props.options).value;
     result = _.filter(this.props.options, option => option.value === val);
 
     return _.first(result) || {
@@ -138,16 +143,18 @@ class Dropdown extends React.Component {
 
   render() {
     const { controlClassName, menuClassName } = this.props;
-    let input, value, menu, dropdownClass;
+    let input, value, menu, dropdownClass, selectedOption;
 
     input = (
       <input type="hidden" ref="input"
         {...(_.omit(this.props, "options", "onChange", "valueLink"))}/>
     );
 
+    selectedOption = this.getSelectedOption();
+
     value = (
-      <div className="placeholder">
-        {this.getSelectedOption().label}
+      <div className={`placeholder ${selectedOption.value}`}>
+        {selectedOption.label}
       </div>
     );
 

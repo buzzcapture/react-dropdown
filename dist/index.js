@@ -82,11 +82,17 @@ var Dropdown = (function (_React$Component) {
     },
     renderOption: {
       value: function renderOption(option) {
-        var optionClass = classNames({
+        var classNameMap = undefined,
+            optionClass = undefined;
+
+        classNameMap = {
           "select-dropdown-option": true,
           "is-selected": option.value == this.getSelectedOption().value,
           "is-empty": option.value === null
-        });
+        };
+
+        classNameMap[option.value] = true;
+        optionClass = classNames(classNameMap);
 
         return React.createElement(
           "div",
@@ -165,7 +171,7 @@ var Dropdown = (function (_React$Component) {
         var val = undefined,
             result = undefined;
 
-        val = this.props.value || this.props.valueLink.value;
+        val = this.props.value || this.props.valueLink.value || _.first(this.props.options).value;
         result = _.filter(this.props.options, function (option) {
           return option.value === val;
         });
@@ -184,15 +190,18 @@ var Dropdown = (function (_React$Component) {
         var input = undefined,
             value = undefined,
             menu = undefined,
-            dropdownClass = undefined;
+            dropdownClass = undefined,
+            selectedOption = undefined;
 
         input = React.createElement("input", _extends({ type: "hidden", ref: "input"
         }, _.omit(this.props, "options", "onChange", "valueLink")));
 
+        selectedOption = this.getSelectedOption();
+
         value = React.createElement(
           "div",
-          { className: "placeholder" },
-          this.getSelectedOption().label
+          { className: "placeholder " + selectedOption.value },
+          selectedOption.label
         );
 
         menu = this.state.isOpen ? React.createElement(
