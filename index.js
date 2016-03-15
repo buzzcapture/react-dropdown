@@ -133,7 +133,7 @@ class Dropdown extends React.Component {
   getSelectedOption() {
     let val, result;
 
-    val = this.props.value || this.props.valueLink.value || _.first(this.props.options).value;
+    val = this.props.value || (this.props.valueLink || {}).value || _.first(this.props.options).value;
     result = _.filter(this.props.options, option => option.value === val);
 
     return _.first(result) || {

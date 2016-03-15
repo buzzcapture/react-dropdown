@@ -171,7 +171,7 @@ var Dropdown = (function (_React$Component) {
         var val = undefined,
             result = undefined;
 
-        val = this.props.value || this.props.valueLink.value || _.first(this.props.options).value;
+        val = this.props.value || (this.props.valueLink || {}).value || _.first(this.props.options).value;
         result = _.filter(this.props.options, function (option) {
           return option.value === val;
         });
