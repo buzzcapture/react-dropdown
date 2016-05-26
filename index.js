@@ -2,6 +2,7 @@
 
 import _ from "lodash";
 import React from "react";
+import ReactDOM from "react-dom";
 import classNames from "classnames";
 
 class Dropdown extends React.Component {
@@ -123,7 +124,7 @@ class Dropdown extends React.Component {
   }
 
   handleDocumentClick(evt) {
-    if (this.mounted && !React.findDOMNode(this).contains(evt.target)) {
+    if (this.mounted && !ReactDOM.findDOMNode(this).contains(evt.target)) {
       this.setState({
         isOpen: false
       });
