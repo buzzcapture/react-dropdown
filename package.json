@@ -25,7 +25,8 @@
   },
   "homepage": "https://github.com/fraserxu/react-dropdown",
   "peerDependencies": {
-    "react": ">0.13.3"
+    "react": "^0.14.8",
+    "react": "^0.14.8"
   },
   "dependencies": {
     "lodash": "^3.10.1",
