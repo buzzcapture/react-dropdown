@@ -16,6 +16,8 @@ var _ = _interopRequire(require("lodash"));
 
 var React = _interopRequire(require("react"));
 
+var ReactDOM = _interopRequire(require("react-dom"));
+
 var classNames = _interopRequire(require("classnames"));
 
 var Dropdown = (function (_React$Component) {
@@ -159,7 +161,7 @@ var Dropdown = (function (_React$Component) {
     },
     handleDocumentClick: {
       value: function handleDocumentClick(evt) {
-        if (this.mounted && !React.findDOMNode(this).contains(evt.target)) {
+        if (this.mounted && !ReactDOM.findDOMNode(this).contains(evt.target)) {
           this.setState({
             isOpen: false
           });
